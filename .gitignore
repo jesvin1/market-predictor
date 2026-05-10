@@ -16,3 +16,6 @@ wheels/
 *.duckdb
 *.duckdb.wal
 *.duckdb.tmp
+
+!data/market.duckdb
+!market_data.duckdb
