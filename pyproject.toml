@@ -1,0 +1,14 @@
+[project]
+name = "nse-prediction"
+version = "0.1.0"
+description = "NSE market data storage and prediction project"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "duckdb",
+    "pandas",
+    "yfinance",
+]
+
+[project.scripts]
+init-market-storage = "nse_prediction.db.duckdb:main"

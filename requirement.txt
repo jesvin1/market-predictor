@@ -1,0 +1,8 @@
+duckdb
+yfinance 
+pandas
+ta
+ipykernel
+streamlit
+xgboost
+scikit-learn
