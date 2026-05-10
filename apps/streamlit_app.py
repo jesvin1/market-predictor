@@ -3,12 +3,34 @@ from __future__ import annotations
 import duckdb
 import pandas as pd
 import streamlit as st
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DB_PATH = ROOT / "data" / "market.duckdb"
 CONSTITUENTS_DB_PATH = ROOT / "market_data.duckdb"
 INDEX_TICKERS = ["^NSEI", "^INDIAVIX"]
+
+
+def resolve_market_db_path() -> Path | None:
+    """Resolve DuckDB path across local and Streamlit Cloud layouts."""
+    env_db = os.getenv("MARKET_DB_PATH")
+    candidates: list[Path] = []
+    if env_db:
+        candidates.append(Path(env_db))
+
+    candidates.extend(
+        [
+            ROOT / "data" / "market.duckdb",
+            ROOT / "market.duckdb",
+            Path.cwd() / "data" / "market.duckdb",
+            Path.cwd() / "market.duckdb",
+        ]
+    )
+
+    for path in candidates:
+        if path.is_file():
+            return path
+    return None
 
 
 def compute_signal(row: pd.Series) -> tuple[str, int, list[str]]:
@@ -258,7 +280,19 @@ def main() -> None:
     st.title("NSE Signal Dashboard")
     st.caption("Single ticker + consolidated index dashboard with indicator-based signals")
 
-    conn = duckdb.connect(str(DB_PATH), read_only=True)
+    db_path = resolve_market_db_path()
+    if db_path is None:
+        st.error(
+            "Could not find the market DuckDB file. Set `MARKET_DB_PATH` or make sure "
+            "`data/market.duckdb` exists in the deployed app."
+        )
+        st.info(
+            "Expected locations checked: `data/market.duckdb`, `market.duckdb` "
+            "(from project root/current working directory)."
+        )
+        return
+
+    conn = duckdb.connect(str(db_path), read_only=True)
 
     try:
         tickers = load_tickers(conn)
