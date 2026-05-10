@@ -248,10 +248,7 @@ def consolidated_signal(latest_rows: pd.DataFrame) -> tuple[str, int]:
 
 
 def prepare_display_df(df: pd.DataFrame) -> pd.DataFrame:
-    """Show only meaningful columns in UI tables."""
     display_df = df.copy()
-
-    # Hide columns that are fully empty for the current view.
     display_df = display_df.dropna(axis=1, how="all")
     return display_df
 
